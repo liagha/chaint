@@ -1,5 +1,6 @@
+// src/formation/form.rs
+
 use crate::Formable;
-use axo::{data::slice, format::Debug, internal::hash::Hash};
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Form<'form, Input: Formable<'form>, Output: Formable<'form>, Failure: Formable<'form>> {
@@ -12,7 +13,7 @@ pub enum Form<'form, Input: Formable<'form>, Output: Formable<'form>, Failure: F
 }
 
 impl<'form, Input: Formable<'form>, Output: Formable<'form>, Failure: Formable<'form>> Default
-    for Form<'form, Input, Output, Failure>
+for Form<'form, Input, Output, Failure>
 {
     fn default() -> Self {
         Self::Blank
@@ -20,7 +21,7 @@ impl<'form, Input: Formable<'form>, Output: Formable<'form>, Failure: Formable<'
 }
 
 impl<'form, Input: Formable<'form>, Output: Formable<'form>, Failure: Formable<'form>>
-    Form<'form, Input, Output, Failure>
+Form<'form, Input, Output, Failure>
 {
     #[inline(always)]
     pub fn blank() -> Self {
@@ -104,7 +105,7 @@ impl<'form, Input: Formable<'form>, Output: Formable<'form>, Failure: Formable<'
     pub fn as_forms(&self) -> &[Form<'form, Input, Output, Failure>] {
         match self {
             Form::Multiple(forms) => forms.as_slice(),
-            _ => slice::from_ref(self),
+            _ => std::slice::from_ref(self),
         }
     }
 

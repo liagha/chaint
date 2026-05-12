@@ -1,8 +1,4 @@
-use crate::{Form, Formable, Outcome};
-use axo::{
-    data::{Identity, Offset},
-    tracker::Peekable,
-};
+use crate::{Form, Formable, Identity, Offset, Outcome, Peekable};
 
 #[derive(Clone)]
 pub struct Memo<'a, Source, Input, Output, Failure>

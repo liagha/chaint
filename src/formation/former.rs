@@ -1,12 +1,9 @@
-use crate::{Build, Combinator, Commit, Form, Formable, Formation};
-use axo::{
-    data::{
-        Offset,
-        memory::{Arc, replace},
-    },
-    internal::hash::Map,
-    tracker::Peekable,
-};
+// src/formation/former.rs
+
+use crate::{Build, Combinator, Commit, Form, Formable, Formation, Offset, Peekable};
+use std::collections::HashMap;
+use std::mem::replace;
+use std::sync::Arc;
 
 use super::{Joint, Sink, memo::Memo};
 
@@ -14,9 +11,9 @@ pub type Stash<'a, 'source, Source, Input, Output, Failure> = Vec<(
     usize,
     Arc<
         dyn Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-            + Send
-            + Sync
-            + 'source,
+        + Send
+        + Sync
+        + 'source,
     >,
 )>;
 
@@ -32,11 +29,11 @@ where
     pub consumed: Vec<Input>,
     pub forms: Vec<Form<'a, Input, Output, Failure>>,
     pub stash: Stash<'a, 'source, Source, Input, Output, Failure>,
-    pub memo: Map<(usize, Offset), Memo<'a, Source, Input, Output, Failure>>,
+    pub memo: HashMap<(usize, Offset), Memo<'a, Source, Input, Output, Failure>>,
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-    Former<'a, 'source, Source, Input, Output, Failure>
+Former<'a, 'source, Source, Input, Output, Failure>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -51,7 +48,7 @@ where
             consumed: Vec::new(),
             forms: Vec::new(),
             stash: Stash::new(),
-            memo: Map::new(),
+            memo: HashMap::new(),
         }
     }
 

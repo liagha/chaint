@@ -1,8 +1,6 @@
-use crate::{Combinator, Command, Condition, Trigger};
-use axo::{
-    data::{Identity, Scale, memory::Arc},
-    internal::time::{Duration, SystemTime},
-};
+use crate::{Combinator, Command, Condition, Identity, Scale, Trigger};
+use std::sync::Arc;
+use std::time::{Duration, SystemTime};
 
 use super::{Operator, Plan};
 
@@ -14,9 +12,9 @@ pub enum Status {
 }
 
 type Combinator_<'source, Store> = dyn for<'op> Combinator<'static, (&'op mut Operator<Store>, &'op mut Operation<'source, Store>)>
-    + Send
-    + Sync
-    + 'source;
++ Send
++ Sync
++ 'source;
 
 pub struct Mapper<'source, Store> {
     pub inner: Arc<Combinator_<'source, Store>>,
@@ -75,7 +73,7 @@ impl<'source, Store: Clone + Send + Sync + 'static> Operation<'source, Store> {
     #[inline]
     pub fn new(combinator: Arc<Combinator_<'source, Store>>) -> Self {
         Self {
-            identity: axo::combinator::next_identity(),
+            identity: crate::next_identity(),
             combinator,
             status: Status::Pending,
             depth: 0,
@@ -145,7 +143,7 @@ impl<'source, Store: Clone + Send + Sync + 'static> Operation<'source, Store> {
 
     #[inline]
     pub fn sequence<const SIZE: Scale>(states: [Self; SIZE]) -> Self {
-        Self::new(Arc::new(axo::combinator::Sequence {
+        Self::new(Arc::new(crate::Sequence {
             states,
             halt: |state| state.is_rejected() || state.is_pending(),
             keep: |state| state.is_resolved(),
@@ -154,7 +152,7 @@ impl<'source, Store: Clone + Send + Sync + 'static> Operation<'source, Store> {
 
     #[inline]
     pub fn alternative<const SIZE: Scale>(states: [Self; SIZE]) -> Self {
-        Self::new(Arc::new(axo::combinator::Alternative {
+        Self::new(Arc::new(crate::Alternative {
             states,
             halt: |state| state.is_resolved() || state.is_pending(),
             compare: |new, old| new.is_resolved() && old.is_rejected(),
@@ -163,7 +161,7 @@ impl<'source, Store: Clone + Send + Sync + 'static> Operation<'source, Store> {
 
     #[inline]
     pub fn repetition(state: Self, minimum: Scale, maximum: Option<Scale>) -> Self {
-        Self::new(Arc::new(axo::combinator::Repetition {
+        Self::new(Arc::new(crate::Repetition {
             state: Box::new(state),
             minimum,
             maximum,
@@ -174,7 +172,7 @@ impl<'source, Store: Clone + Send + Sync + 'static> Operation<'source, Store> {
 
     #[inline]
     pub fn cycle(state: Self) -> Self {
-        Self::new(Arc::new(axo::combinator::Cycle {
+        Self::new(Arc::new(crate::Cycle {
             state: Box::new(state),
             keep: |state| matches!(&state.status, Status::Resolved(data) if !data.is_empty()),
         }))

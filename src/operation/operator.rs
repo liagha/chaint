@@ -1,28 +1,22 @@
-use crate::{Depend, Operation, Pulse, Resolve, Status};
-use axo::{
-    data::Identity,
-    internal::{
-        hash::Map,
-        platform::{metadata, sleep},
-        time::Duration,
-    },
-};
+use crate::{Depend, Identity, Operation, Pulse, Resolve, Status};
+use std::collections::HashMap;
+use std::time::Duration;
 
 struct Cache;
 
 impl Cache {
     #[inline]
-    pub fn get(cache: &Map<Identity, Status>, identity: Identity) -> Option<Status> {
+    pub fn get(cache: &HashMap<Identity, Status>, identity: Identity) -> Option<Status> {
         cache.get(&identity).cloned()
     }
 
     #[inline]
-    pub fn put(cache: &mut Map<Identity, Status>, identity: Identity, status: Status) {
+    pub fn put(cache: &mut HashMap<Identity, Status>, identity: Identity, status: Status) {
         cache.insert(identity, status);
     }
 
     #[inline]
-    pub fn reset(cache: &mut Map<Identity, Status>) {
+    pub fn reset(cache: &mut HashMap<Identity, Status>) {
         cache.clear();
     }
 }
@@ -63,12 +57,12 @@ impl Depend {
 impl Pulse {
     #[inline]
     pub fn tick(&self) {
-        sleep(Duration::from_millis(self.idle));
+        std::thread::sleep(Duration::from_millis(self.idle));
     }
 }
 
 pub struct Operator<Store = ()> {
-    pub cache: Map<Identity, Status>,
+    pub cache: HashMap<Identity, Status>,
     pub store: Store,
 }
 
@@ -76,7 +70,7 @@ impl<Store: Clone + Send + Sync> Operator<Store> {
     #[inline]
     pub fn new(store: Store) -> Self {
         Self {
-            cache: Map::new(),
+            cache: HashMap::new(),
             store,
         }
     }
@@ -125,7 +119,7 @@ impl<Store: Clone + Send + Sync> Operator<Store> {
     ) {
         let mut last: Vec<_> = paths
             .iter()
-            .map(|path| metadata(path).and_then(|m| m.modified()).ok())
+            .map(|path| std::fs::metadata(path).and_then(|m| m.modified()).ok())
             .collect();
 
         loop {
@@ -138,7 +132,7 @@ impl<Store: Clone + Send + Sync> Operator<Store> {
 
                 let current: Vec<_> = paths
                     .iter()
-                    .map(|path| metadata(path).and_then(|m| m.modified()).ok())
+                    .map(|path| std::fs::metadata(path).and_then(|m| m.modified()).ok())
                     .collect();
 
                 if current != last {

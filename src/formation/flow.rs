@@ -1,5 +1,5 @@
-use crate::{Combinator, Form, Formable, Formation, Former, Outcome};
-use axo::{data::memory::Arc, tracker::Peekable};
+use crate::{Combinator, Form, Formable, Formation, Former, Outcome, Peekable};
+use std::sync::Arc;
 
 use super::Joint;
 
@@ -71,9 +71,9 @@ impl Build {
     {
         let combinator: Arc<
             dyn Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-                + Send
-                + Sync
-                + 'source,
+            + Send
+            + Sync
+            + 'source,
         > = formation.combinator.clone();
 
         let mut joint: Joint<'a, 'source, Source, Input, Output, Failure> =

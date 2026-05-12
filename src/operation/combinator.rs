@@ -1,26 +1,22 @@
 use crate::{
-    Alternative, Combinator, Command, Condition, Cycle, Repetition, Sequence, Status, Transform,
-    Trigger, next_identity,
+    Alternative, Combinator, Command, Condition, Cycle, Identity, Repetition, Scale, Sequence,
+    Status, Transform, Trigger, next_identity,
 };
-
-use axo::{
-    data::{Identity, Scale, memory::take},
-    internal::{
-        platform::{Command as Terminal, Stdio, Write, metadata},
-        time::SystemTime,
-    },
-};
+use std::mem::take;
+use std::io::Write;
+use std::process::{Command as Terminal, Stdio};
+use std::time::SystemTime;
 
 use super::{Joint, Mapper, Operation, Operator};
 
 type Boxed<'source, Store> = Vec<
-    axo::data::memory::Arc<
+    std::sync::Arc<
         dyn for<'op> Combinator<
-                'static,
-                (&'op mut Operator<Store>, &'op mut Operation<'source, Store>),
-            > + Send
-            + Sync
-            + 'source,
+            'static,
+            (&'op mut Operator<Store>, &'op mut Operation<'source, Store>),
+        > + Send
+        + Sync
+        + 'source,
     >,
 >;
 
@@ -29,7 +25,7 @@ pub struct Many<'source, Store> {
 }
 
 impl<'op, 'source, Store: Clone + Send + Sync + 'static>
-    Combinator<'static, Joint<'op, 'source, Store>> for Many<'source, Store>
+Combinator<'static, Joint<'op, 'source, Store>> for Many<'source, Store>
 {
     #[inline]
     fn combinator(&self, joint: &mut Joint<'op, 'source, Store>) {
@@ -40,7 +36,7 @@ impl<'op, 'source, Store: Clone + Send + Sync + 'static>
 }
 
 impl<'op, 'source, Store: Clone + Send + Sync> Combinator<'static, Joint<'op, 'source, Store>>
-    for Command
+for Command
 {
     #[inline]
     fn combinator(&self, joint: &mut Joint<'op, 'source, Store>) {
@@ -79,7 +75,7 @@ impl<'op, 'source, Store: Clone + Send + Sync> Combinator<'static, Joint<'op, 's
 }
 
 impl<'op, 'source, Store: Clone + Send + Sync + 'source>
-    Combinator<'static, Joint<'op, 'source, Store>> for Trigger<'source, Store>
+Combinator<'static, Joint<'op, 'source, Store>> for Trigger<'source, Store>
 {
     #[inline]
     fn combinator(&self, joint: &mut Joint<'op, 'source, Store>) {
@@ -100,8 +96,8 @@ impl<'op, 'source, Store: Clone + Send + Sync + 'source>
                 }
             }
             Condition::Outdated(source, target) => {
-                let source_meta = metadata(source).and_then(|m| m.modified());
-                let target_meta = metadata(target).and_then(|m| m.modified());
+                let source_meta = std::fs::metadata(source).and_then(|m| m.modified());
+                let target_meta = std::fs::metadata(target).and_then(|m| m.modified());
 
                 match (source_meta, target_meta) {
                     (Ok(s), Ok(t)) if s > t => {}
@@ -117,7 +113,7 @@ impl<'op, 'source, Store: Clone + Send + Sync + 'source>
                 }
             }
             Condition::Missing(path) => {
-                if metadata(path).is_ok() {
+                if std::fs::metadata(path).is_ok() {
                     operation.set_resolve(Vec::new());
                     return;
                 }
@@ -129,7 +125,7 @@ impl<'op, 'source, Store: Clone + Send + Sync + 'source>
 }
 
 impl<'op, 'source, Store: Clone + Send + Sync + 'static, const SIZE: Scale>
-    Combinator<'static, Joint<'op, 'source, Store>> for Sequence<Operation<'source, Store>, SIZE>
+Combinator<'static, Joint<'op, 'source, Store>> for Sequence<Operation<'source, Store>, SIZE>
 {
     #[inline]
     fn combinator(&self, joint: &mut Joint<'op, 'source, Store>) {
@@ -181,8 +177,8 @@ impl<'op, 'source, Store: Clone + Send + Sync + 'static, const SIZE: Scale>
 }
 
 impl<'op, 'source, Store: Clone + Send + Sync + 'static, const SIZE: Scale>
-    Combinator<'static, Joint<'op, 'source, Store>>
-    for Alternative<Operation<'source, Store>, SIZE>
+Combinator<'static, Joint<'op, 'source, Store>>
+for Alternative<Operation<'source, Store>, SIZE>
 {
     #[inline]
     fn combinator(&self, joint: &mut Joint<'op, 'source, Store>) {
@@ -242,7 +238,7 @@ impl<'op, 'source, Store: Clone + Send + Sync + 'static, const SIZE: Scale>
 }
 
 impl<'op, 'source, Store: Clone + Send + Sync + 'static>
-    Combinator<'static, Joint<'op, 'source, Store>> for Repetition<Operation<'source, Store>>
+Combinator<'static, Joint<'op, 'source, Store>> for Repetition<Operation<'source, Store>>
 {
     #[inline]
     fn combinator(&self, joint: &mut Joint<'op, 'source, Store>) {
@@ -318,7 +314,7 @@ impl<'op, 'source, Store: Clone + Send + Sync + 'static>
 }
 
 impl<'op, 'source, Store: Clone + Send + Sync + 'static>
-    Combinator<'static, Joint<'op, 'source, Store>> for Cycle<Operation<'source, Store>>
+Combinator<'static, Joint<'op, 'source, Store>> for Cycle<Operation<'source, Store>>
 {
     #[inline]
     fn combinator(&self, joint: &mut Joint<'op, 'source, Store>) {
@@ -356,8 +352,8 @@ impl<'op, 'source, Store: Clone + Send + Sync + 'static>
 }
 
 impl<'op, 'source, Store: Clone + Send + Sync + 'static, Failure>
-    Combinator<'static, Joint<'op, 'source, Store>>
-    for Transform<'source, Joint<'op, 'source, Store>, Failure>
+Combinator<'static, Joint<'op, 'source, Store>>
+for Transform<'source, Joint<'op, 'source, Store>, Failure>
 {
     #[inline]
     fn combinator(&self, joint: &mut Joint<'op, 'source, Store>) {
@@ -366,7 +362,7 @@ impl<'op, 'source, Store: Clone + Send + Sync + 'static, Failure>
 }
 
 impl<'op, 'source, Store: Clone + Send + Sync + 'static>
-    Combinator<'static, Joint<'op, 'source, Store>> for Mapper<'source, Store>
+Combinator<'static, Joint<'op, 'source, Store>> for Mapper<'source, Store>
 {
     #[inline]
     fn combinator(&self, joint: &mut Joint<'op, 'source, Store>) {

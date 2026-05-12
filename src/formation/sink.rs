@@ -1,5 +1,4 @@
-use crate::{Consume, Formable, Formation};
-use axo::tracker::Peekable;
+use crate::{Consume, Formable, Formation, Peekable};
 
 use super::former::Former;
 

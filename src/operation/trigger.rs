@@ -1,5 +1,6 @@
 use crate::Combinator;
-use axo::{data::memory::Arc, internal::time::SystemTime};
+use std::sync::Arc;
+use std::time::SystemTime;
 
 use super::{Operation, Operator};
 

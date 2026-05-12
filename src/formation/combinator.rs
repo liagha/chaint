@@ -1,13 +1,12 @@
+// src/formation/combinator.rs
+
 use crate::{
-    Alternative, Combinator, Deferred, Fail, Form, Formable, Formation, Former, Ignore, Literal,
-    Memo, Memoize, Multiple, Optional, Outcome, Panic, Predicate, Recover, Repetition, Sequence,
-    Skip, Transform, formation::Joint,
+    Alternative, Combinator, Deferred, Fail, Form, Formable, Formation, Former, Identity, Ignore,
+    Literal, Memo, Memoize, Multiple, Offset, Optional, Outcome, Panic, Peekable, Predicate,
+    Recover, Repetition, Scale, Sequence, Skip, Transform,
 };
-use axo::data::{
-    Identity, Offset, Scale,
-    memory::{replace, take},
-};
-use axo::tracker::Peekable;
+use crate::formation::Joint;
+use std::mem::take;
 
 struct Recall<'a, Source, Input, Output, Failure>
 where
@@ -84,8 +83,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-    for Multiple<'a, 'source, Joint<'a, 'source, Source, Input, Output, Failure>>
+Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+for Multiple<'a, 'source, Joint<'a, 'source, Source, Input, Output, Failure>>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -102,8 +101,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-    for Literal<'a, 'source, Input>
+Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+for Literal<'a, 'source, Input>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -124,8 +123,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-    for Predicate<'a, 'source, Input>
+Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+for Predicate<'a, 'source, Input>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -146,8 +145,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure, const SIZE: Scale>
-    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-    for Alternative<Formation<'a, 'source, Source, Input, Output, Failure>, SIZE>
+Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+for Alternative<Formation<'a, 'source, Source, Input, Output, Failure>, SIZE>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -246,7 +245,7 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure> Clone
-    for Deferred<Formation<'a, 'source, Source, Input, Output, Failure>>
+for Deferred<Formation<'a, 'source, Source, Input, Output, Failure>>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -262,8 +261,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-    for Deferred<Formation<'a, 'source, Source, Input, Output, Failure>>
+Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+for Deferred<Formation<'a, 'source, Source, Input, Output, Failure>>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -288,7 +287,7 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure, C>
-    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>> for Memoize<C>
+Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>> for Memoize<C>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -344,8 +343,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-    for Optional<Formation<'a, 'source, Source, Input, Output, Failure>>
+Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+for Optional<Formation<'a, 'source, Source, Input, Output, Failure>>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -396,8 +395,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure, const SIZE: Scale>
-    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-    for Sequence<Formation<'a, 'source, Source, Input, Output, Failure>, SIZE>
+Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+for Sequence<Formation<'a, 'source, Source, Input, Output, Failure>, SIZE>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -485,7 +484,7 @@ where
             let form = Form::multiple(
                 forms
                     .into_iter()
-                    .map(|id| replace(&mut former.forms[id], Form::Blank))
+                    .map(|id| std::mem::replace(&mut former.forms[id], Form::Blank))
                     .collect(),
             );
 
@@ -497,8 +496,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-    for Repetition<Formation<'a, 'source, Source, Input, Output, Failure>>
+Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+for Repetition<Formation<'a, 'source, Source, Input, Output, Failure>>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -606,7 +605,7 @@ where
             let form = Form::multiple(
                 forms
                     .into_iter()
-                    .map(|id| replace(&mut former.forms[id], Form::Blank))
+                    .map(|id| std::mem::replace(&mut former.forms[id], Form::Blank))
                     .collect(),
             );
 
@@ -629,8 +628,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-    for Recover<'source, Joint<'a, 'source, Source, Input, Output, Failure>, Input, Failure>
+Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+for Recover<'source, Joint<'a, 'source, Source, Input, Output, Failure>, Input, Failure>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -672,7 +671,7 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>> for Ignore
+Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>> for Ignore
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -690,7 +689,7 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>> for Skip
+Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>> for Skip
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -708,8 +707,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-    for Transform<'source, Joint<'a, 'source, Source, Input, Output, Failure>, Failure>
+Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+for Transform<'source, Joint<'a, 'source, Source, Input, Output, Failure>, Failure>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -731,8 +730,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-    for Fail<'source, Joint<'a, 'source, Source, Input, Output, Failure>, Failure>
+Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+for Fail<'source, Joint<'a, 'source, Source, Input, Output, Failure>, Failure>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -753,8 +752,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-    for Panic<'source, Joint<'a, 'source, Source, Input, Output, Failure>, Failure>
+Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+for Panic<'source, Joint<'a, 'source, Source, Input, Output, Failure>, Failure>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
