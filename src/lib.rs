@@ -24,9 +24,9 @@ pub type Identity = usize;
 pub type Offset = u32;
 pub type Scale = usize;
 
-pub trait Formable<'a>: Clone + Eq + Hash + PartialEq + std::fmt::Display + 'a {}
+pub trait Formable<'a>: Clone + Eq + Hash + PartialEq + 'a {}
 
-impl<'a, T> Formable<'a> for T where T: Clone + Eq + Hash + PartialEq + std::fmt::Display + 'a {}
+impl<'a, T> Formable<'a> for T where T: Clone + Eq + Hash + PartialEq + 'a {}
 
 pub trait Combinator<'a, Joint>: Send + Sync {
     fn combinator(&self, joint: &mut Joint);
