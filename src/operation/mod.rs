@@ -11,7 +11,5 @@ pub use operator::*;
 pub use plan::*;
 pub use trigger::*;
 
-pub type Joint<'op, 'source, Store> = (
-    &'op mut Operator<Store>,
-    &'op mut Operation<'source, Store>,
-);
+pub type Joint<'op, 'source, Store> =
+    (&'op mut Operator<Store>, &'op mut Operation<'source, Store>);

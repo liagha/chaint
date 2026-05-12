@@ -1,6 +1,6 @@
 use crate::{Combinator, Command, Condition, Trigger};
 use axo::{
-    data::{memory::Arc, Identity, Scale},
+    data::{Identity, Scale, memory::Arc},
     internal::time::{Duration, SystemTime},
 };
 
@@ -13,10 +13,10 @@ pub enum Status {
     Rejected,
 }
 
-type Combinator_<'source, Store> = dyn for<'op> Combinator<
-'static,
-(&'op mut Operator<Store>, &'op mut Operation<'source, Store>),
-> + Send + Sync + 'source;
+type Combinator_<'source, Store> = dyn for<'op> Combinator<'static, (&'op mut Operator<Store>, &'op mut Operation<'source, Store>)>
+    + Send
+    + Sync
+    + 'source;
 
 pub struct Mapper<'source, Store> {
     pub inner: Arc<Combinator_<'source, Store>>,

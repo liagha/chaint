@@ -1,12 +1,11 @@
 use crate::{
-    formation::Joint,
-    Alternative, Combinator, Deferred, Fail, Form, Formable, Formation, Former, Ignore,
-    Literal, Memoize, Memo, Multiple, Optional, Outcome, Panic, Predicate, Recover, Repetition,
-    Sequence, Skip, Transform,
+    Alternative, Combinator, Deferred, Fail, Form, Formable, Formation, Former, Ignore, Literal,
+    Memo, Memoize, Multiple, Optional, Outcome, Panic, Predicate, Recover, Repetition, Sequence,
+    Skip, Transform, formation::Joint,
 };
 use axo::data::{
-    memory::{replace, take},
     Identity, Offset, Scale,
+    memory::{replace, take},
 };
 use axo::tracker::Peekable;
 
@@ -85,8 +84,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-for Multiple<'a, 'source, Joint<'a, 'source, Source, Input, Output, Failure>>
+    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+    for Multiple<'a, 'source, Joint<'a, 'source, Source, Input, Output, Failure>>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -95,10 +94,7 @@ where
     Failure: Formable<'a>,
 {
     #[inline]
-    fn combinator(
-        &self,
-        joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>,
-    ) {
+    fn combinator(&self, joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>) {
         for combinator in self.combinators.iter() {
             combinator.combinator(joint);
         }
@@ -106,8 +102,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-for Literal<'a, 'source, Input>
+    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+    for Literal<'a, 'source, Input>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -116,10 +112,7 @@ where
     Failure: Formable<'a>,
 {
     #[inline]
-    fn combinator(
-        &self,
-        joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>,
-    ) {
+    fn combinator(&self, joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>) {
         match joint.0.source.get(joint.1.marker) {
             Some(input) if self.value.eq(input) => {
                 joint.1.set_align();
@@ -131,8 +124,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-for Predicate<'a, 'source, Input>
+    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+    for Predicate<'a, 'source, Input>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -141,10 +134,7 @@ where
     Failure: Formable<'a>,
 {
     #[inline]
-    fn combinator(
-        &self,
-        joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>,
-    ) {
+    fn combinator(&self, joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>) {
         match joint.0.source.get(joint.1.marker) {
             Some(input) if (self.function)(input) => {
                 joint.1.set_align();
@@ -156,8 +146,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure, const SIZE: Scale>
-Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-for Alternative<Formation<'a, 'source, Source, Input, Output, Failure>, SIZE>
+    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+    for Alternative<Formation<'a, 'source, Source, Input, Output, Failure>, SIZE>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -166,10 +156,7 @@ where
     Failure: Formable<'a>,
 {
     #[inline]
-    fn combinator(
-        &self,
-        joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>,
-    ) {
+    fn combinator(&self, joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>) {
         let (former, formation) = (&mut joint.0, &mut joint.1);
 
         let mut best: Option<Formation<'a, 'source, Source, Input, Output, Failure>> = None;
@@ -259,7 +246,7 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure> Clone
-for Deferred<Formation<'a, 'source, Source, Input, Output, Failure>>
+    for Deferred<Formation<'a, 'source, Source, Input, Output, Failure>>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -275,8 +262,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-for Deferred<Formation<'a, 'source, Source, Input, Output, Failure>>
+    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+    for Deferred<Formation<'a, 'source, Source, Input, Output, Failure>>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -285,10 +272,7 @@ where
     Failure: Formable<'a>,
 {
     #[inline]
-    fn combinator(
-        &self,
-        joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>,
-    ) {
+    fn combinator(&self, joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>) {
         let id = self.factory as usize;
         let combinator = match joint.0.stash.iter().find(|(item, _)| *item == id) {
             Some((_, combo)) => combo.clone(),
@@ -304,8 +288,7 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure, C>
-Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-for Memoize<C>
+    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>> for Memoize<C>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -315,10 +298,7 @@ where
     C: Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>,
 {
     #[inline]
-    fn combinator(
-        &self,
-        joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>,
-    ) {
+    fn combinator(&self, joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>) {
         let id = self as *const Self as usize;
         let key = (id, joint.1.marker);
 
@@ -335,16 +315,16 @@ where
 
         self.inner.combinator(joint);
 
-        let forms = joint.0.forms[base_forms as usize..].to_vec().into_boxed_slice();
+        let forms = joint.0.forms[base_forms as usize..]
+            .to_vec()
+            .into_boxed_slice();
         let inputs = joint.0.consumed[base_consumed as usize..]
             .to_vec()
             .into_boxed_slice();
         let self_consumed = joint.1.consumed[base_self_consumed..]
             .to_vec()
             .into_boxed_slice();
-        let self_stack = joint.1.stack[base_self_stack..]
-            .to_vec()
-            .into_boxed_slice();
+        let self_stack = joint.1.stack[base_self_stack..].to_vec().into_boxed_slice();
 
         let memo = Memo {
             outcome: joint.1.outcome,
@@ -364,8 +344,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-for Optional<Formation<'a, 'source, Source, Input, Output, Failure>>
+    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+    for Optional<Formation<'a, 'source, Source, Input, Output, Failure>>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -374,10 +354,7 @@ where
     Failure: Formable<'a>,
 {
     #[inline]
-    fn combinator(
-        &self,
-        joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>,
-    ) {
+    fn combinator(&self, joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>) {
         let (former, formation) = (&mut joint.0, &mut joint.1);
 
         let base = (
@@ -419,8 +396,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure, const SIZE: Scale>
-Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-for Sequence<Formation<'a, 'source, Source, Input, Output, Failure>, SIZE>
+    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+    for Sequence<Formation<'a, 'source, Source, Input, Output, Failure>, SIZE>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -429,10 +406,7 @@ where
     Failure: Formable<'a>,
 {
     #[inline]
-    fn combinator(
-        &self,
-        joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>,
-    ) {
+    fn combinator(&self, joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>) {
         let (former, formation) = (&mut joint.0, &mut joint.1);
 
         let mut consumed = take(&mut formation.consumed);
@@ -523,8 +497,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-for Repetition<Formation<'a, 'source, Source, Input, Output, Failure>>
+    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+    for Repetition<Formation<'a, 'source, Source, Input, Output, Failure>>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -533,10 +507,7 @@ where
     Failure: Formable<'a>,
 {
     #[inline]
-    fn combinator(
-        &self,
-        joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>,
-    ) {
+    fn combinator(&self, joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>) {
         let (former, formation) = (&mut joint.0, &mut joint.1);
 
         let mut consumed = take(&mut formation.consumed);
@@ -658,59 +629,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-for Recover<
-'source,
-Joint<'a, 'source, Source, Input, Output, Failure>,
-Input,
-Failure,
->
-where
-Source: Peekable<'a, Input> + Clone,
-Source::State: Default,
-Input: Formable<'a>,
-Output: Formable<'a>,
-Failure: Formable<'a>,
-{
-#[inline]
-fn combinator(
-&self,
-joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>,
-) {
-if !joint.1.is_failed() && !joint.1.is_panicked() {
-return;
-}
-
-let failure = (self.emitter)(joint);
-let form_id = joint.0.forms.len();
-joint.0.forms.push(Form::Failure(failure));
-
-let mut moved = false;
-
-while let Some(input) = joint.0.source.get(joint.1.marker) {
-if (self.sync)(input) {
-break;
-}
-let input = input.clone();
-joint.0.push(&mut joint.1, input);
-moved = true;
-}
-
-if !moved {
-if let Some(input) = joint.0.source.get(joint.1.marker) {
-let input = input.clone();
-joint.0.push(&mut joint.1, input);
-}
-}
-
-joint.1.set_align();
-joint.1.form = form_id;
-}
-}
-
-impl<'a, 'source, Source, Input, Output, Failure>
-Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-for Ignore
+    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+    for Recover<'source, Joint<'a, 'source, Source, Input, Output, Failure>, Input, Failure>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -719,10 +639,49 @@ where
     Failure: Formable<'a>,
 {
     #[inline]
-    fn combinator(
-        &self,
-        joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>,
-    ) {
+    fn combinator(&self, joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>) {
+        if !joint.1.is_failed() && !joint.1.is_panicked() {
+            return;
+        }
+
+        let failure = (self.emitter)(joint);
+        let form_id = joint.0.forms.len();
+        joint.0.forms.push(Form::Failure(failure));
+
+        let mut moved = false;
+
+        while let Some(input) = joint.0.source.get(joint.1.marker) {
+            if (self.sync)(input) {
+                break;
+            }
+            let input = input.clone();
+            joint.0.push(&mut joint.1, input);
+            moved = true;
+        }
+
+        if !moved {
+            if let Some(input) = joint.0.source.get(joint.1.marker) {
+                let input = input.clone();
+                joint.0.push(&mut joint.1, input);
+            }
+        }
+
+        joint.1.set_align();
+        joint.1.form = form_id;
+    }
+}
+
+impl<'a, 'source, Source, Input, Output, Failure>
+    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>> for Ignore
+where
+    Source: Peekable<'a, Input> + Clone,
+    Source::State: Default,
+    Input: Formable<'a>,
+    Output: Formable<'a>,
+    Failure: Formable<'a>,
+{
+    #[inline]
+    fn combinator(&self, joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>) {
         if joint.1.is_aligned() {
             joint.1.set_ignore();
             joint.1.form = 0;
@@ -731,8 +690,7 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-for Skip
+    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>> for Skip
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -741,10 +699,7 @@ where
     Failure: Formable<'a>,
 {
     #[inline]
-    fn combinator(
-        &self,
-        joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>,
-    ) {
+    fn combinator(&self, joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>) {
         if joint.1.is_aligned() {
             joint.1.set_empty();
             joint.1.form = 0;
@@ -753,8 +708,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-for Transform<'source, Joint<'a, 'source, Source, Input, Output, Failure>, Failure>
+    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+    for Transform<'source, Joint<'a, 'source, Source, Input, Output, Failure>, Failure>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -763,10 +718,7 @@ where
     Failure: Formable<'a>,
 {
     #[inline]
-    fn combinator(
-        &self,
-        joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>,
-    ) {
+    fn combinator(&self, joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>) {
         if joint.1.is_aligned() {
             if let Err(error) = (self.transformer)(joint) {
                 let form_id = joint.0.forms.len();
@@ -779,8 +731,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-for Fail<'source, Joint<'a, 'source, Source, Input, Output, Failure>, Failure>
+    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+    for Fail<'source, Joint<'a, 'source, Source, Input, Output, Failure>, Failure>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -789,10 +741,7 @@ where
     Failure: Formable<'a>,
 {
     #[inline]
-    fn combinator(
-        &self,
-        joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>,
-    ) {
+    fn combinator(&self, joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>) {
         if !joint.1.is_aligned() {
             let failure = (self.emitter)(joint);
             let form_id = joint.0.forms.len();
@@ -804,8 +753,8 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-for Panic<'source, Joint<'a, 'source, Source, Input, Output, Failure>, Failure>
+    Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
+    for Panic<'source, Joint<'a, 'source, Source, Input, Output, Failure>, Failure>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
@@ -814,10 +763,7 @@ where
     Failure: Formable<'a>,
 {
     #[inline]
-    fn combinator(
-        &self,
-        joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>,
-    ) {
+    fn combinator(&self, joint: &mut Joint<'a, 'source, Source, Input, Output, Failure>) {
         if !joint.1.is_aligned() {
             let failure = (self.emitter)(joint);
             let form_id = joint.0.forms.len();

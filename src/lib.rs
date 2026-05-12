@@ -1,17 +1,17 @@
 use axo::data::{
+    Identity, Scale,
     memory::Arc,
     sync::{AtomicUsize, Ordering},
-    Identity, Scale,
 };
 
 pub mod formation;
 pub mod operation;
 
-pub use operation::*;
 pub use formation::*;
+pub use operation::*;
 
-pub use operation::Joint as OperationJoint;
 pub use formation::Joint as FormationJoint;
+pub use operation::Joint as OperationJoint;
 
 pub static COUNTER: AtomicUsize = AtomicUsize::new(0);
 

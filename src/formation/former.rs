@@ -1,22 +1,22 @@
 use crate::{Build, Combinator, Commit, Form, Formable, Formation};
 use axo::{
     data::{
-        memory::{replace, Arc},
         Offset,
+        memory::{Arc, replace},
     },
     internal::hash::Map,
     tracker::Peekable,
 };
 
-use super::{Joint, memo::Memo, Sink};
+use super::{Joint, Sink, memo::Memo};
 
 pub type Stash<'a, 'source, Source, Input, Output, Failure> = Vec<(
     usize,
     Arc<
         dyn Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-        + Send
-        + Sync
-        + 'source,
+            + Send
+            + Sync
+            + 'source,
     >,
 )>;
 
@@ -36,7 +36,7 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-Former<'a, 'source, Source, Input, Output, Failure>
+    Former<'a, 'source, Source, Input, Output, Failure>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,

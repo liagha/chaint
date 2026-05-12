@@ -1,7 +1,5 @@
-use crate::{formation::form::Form, formation::formation::Formation, Formable};
-use axo::{
-    tracker::{Peekable, Span, Spanned},
-};
+use crate::{Formable, formation::form::Form, formation::formation::Formation};
+use axo::tracker::{Peekable, Span, Spanned};
 
 impl<'a, Input, Output, Failure> Spanned<'a> for Form<'a, Input, Output, Failure>
 where

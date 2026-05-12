@@ -1,8 +1,5 @@
 use crate::{Combinator, Form, Formable, Formation, Former, Outcome};
-use axo::{
-    data::memory::Arc,
-    tracker::Peekable,
-};
+use axo::{data::memory::Arc, tracker::Peekable};
 
 use super::Joint;
 
@@ -74,14 +71,13 @@ impl Build {
     {
         let combinator: Arc<
             dyn Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-            + Send
-            + Sync
-            + 'source,
+                + Send
+                + Sync
+                + 'source,
         > = formation.combinator.clone();
 
-        let mut joint: Joint<'a, 'source, Source, Input, Output, Failure> = unsafe {
-            std::mem::transmute_copy(&(former, formation))
-        };
+        let mut joint: Joint<'a, 'source, Source, Input, Output, Failure> =
+            unsafe { std::mem::transmute_copy(&(former, formation)) };
         combinator.combinator(&mut joint);
     }
 }

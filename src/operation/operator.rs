@@ -101,7 +101,10 @@ impl<Store: Clone + Send + Sync> Operator<Store> {
     }
 
     #[inline]
-    pub fn execute<'op, 'source>(&'op mut self, operation: &'op mut Operation<'source, Store>) -> Status {
+    pub fn execute<'op, 'source>(
+        &'op mut self,
+        operation: &'op mut Operation<'source, Store>,
+    ) -> Status {
         loop {
             self.build(operation);
 
@@ -115,7 +118,11 @@ impl<Store: Clone + Send + Sync> Operator<Store> {
     }
 
     #[inline]
-    pub fn watch<'op, 'source>(&'op mut self, operation: &'op mut Operation<'source, Store>, paths: &[&str]) {
+    pub fn watch<'op, 'source>(
+        &'op mut self,
+        operation: &'op mut Operation<'source, Store>,
+        paths: &[&str],
+    ) {
         let mut last: Vec<_> = paths
             .iter()
             .map(|path| metadata(path).and_then(|m| m.modified()).ok())

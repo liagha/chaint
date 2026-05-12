@@ -1,8 +1,5 @@
 use crate::Combinator;
-use axo::{
-    data::memory::Arc,
-    internal::time::SystemTime,
-};
+use axo::{data::memory::Arc, internal::time::SystemTime};
 
 use super::{Operation, Operator};
 
@@ -17,5 +14,12 @@ pub enum Condition {
 
 pub struct Trigger<'source, Store = ()> {
     pub condition: Condition,
-    pub combinator: Arc<dyn for<'op> Combinator<'static, (&'op mut Operator<Store>, &'op mut Operation<'source, Store>)> + Send + Sync + 'source>,
+    pub combinator: Arc<
+        dyn for<'op> Combinator<
+                'static,
+                (&'op mut Operator<Store>, &'op mut Operation<'source, Store>),
+            > + Send
+            + Sync
+            + 'source,
+    >,
 }
