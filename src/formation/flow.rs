@@ -71,9 +71,9 @@ impl Build {
     {
         let combinator: Arc<
             dyn Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-            + Send
-            + Sync
-            + 'source,
+                + Send
+                + Sync
+                + 'source,
         > = formation.combinator.clone();
 
         let mut joint: Joint<'a, 'source, Source, Input, Output, Failure> =

@@ -1,7 +1,7 @@
-use crate::{Formable, Peekable, formation::formation::Formation};
+use crate::{formation::formation::Formation, Formable, Peekable};
 
 impl<'a, 'source, Source, Input, Output, Failure> Clone
-for Formation<'a, 'source, Source, Input, Output, Failure>
+    for Formation<'a, 'source, Source, Input, Output, Failure>
 where
     Source: Peekable<'a, Input> + Clone,
     Input: Formable<'a>,

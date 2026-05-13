@@ -12,9 +12,9 @@ pub enum Status {
 }
 
 type Combinator_<'source, Store> = dyn for<'op> Combinator<'static, (&'op mut Operator<Store>, &'op mut Operation<'source, Store>)>
-+ Send
-+ Sync
-+ 'source;
+    + Send
+    + Sync
+    + 'source;
 
 pub struct Mapper<'source, Store> {
     pub inner: Arc<Combinator_<'source, Store>>,

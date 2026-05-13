@@ -9,7 +9,7 @@ pub struct Plan<'source, Store = ()> {
 }
 
 impl<'op, 'source, Store: Clone + Send + Sync + 'static>
-Combinator<'static, Joint<'op, 'source, Store>> for Plan<'source, Store>
+    Combinator<'static, Joint<'op, 'source, Store>> for Plan<'source, Store>
 {
     #[inline]
     fn combinator(&self, joint: &mut Joint<'op, 'source, Store>) {
@@ -59,7 +59,7 @@ pub struct Parallel<'source, Store = ()> {
 }
 
 impl<'op, 'source, Store: Clone + Send + Sync + 'static>
-Combinator<'static, Joint<'op, 'source, Store>> for Parallel<'source, Store>
+    Combinator<'static, Joint<'op, 'source, Store>> for Parallel<'source, Store>
 {
     #[inline]
     fn combinator(&self, joint: &mut Joint<'op, 'source, Store>) {

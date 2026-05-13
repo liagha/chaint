@@ -84,6 +84,7 @@ pub trait Peekable<'peekable, Item: PartialEq + 'peekable> {
     }
 }
 
+#[derive(Clone)]
 pub struct Peeker<Item> {
     pub source: Vec<Item>,
     pub index: Offset,

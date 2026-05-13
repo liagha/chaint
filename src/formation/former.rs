@@ -3,15 +3,15 @@ use std::collections::HashMap;
 use std::mem::replace;
 use std::sync::Arc;
 
-use super::{Joint, Sink, memo::Memo};
+use super::{memo::Memo, Joint, Sink};
 
 pub type Stash<'a, 'source, Source, Input, Output, Failure> = Vec<(
     usize,
     Arc<
         dyn Combinator<'a, Joint<'a, 'source, Source, Input, Output, Failure>>
-        + Send
-        + Sync
-        + 'source,
+            + Send
+            + Sync
+            + 'source,
     >,
 )>;
 
@@ -31,7 +31,7 @@ where
 }
 
 impl<'a, 'source, Source, Input, Output, Failure>
-Former<'a, 'source, Source, Input, Output, Failure>
+    Former<'a, 'source, Source, Input, Output, Failure>
 where
     Source: Peekable<'a, Input> + Clone,
     Source::State: Default,
