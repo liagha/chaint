@@ -1,6 +1,6 @@
 # ChainT
 
-**Composable parsing combinators with backtracking and memoization.**
+Composable parsing combinators with backtracking and memoization.
 
 ChainT is a Rust library for building incremental parsers using composable combinator patterns. It provides an expressive API for defining grammars with alternatives, sequences, repetitions, and optional rules — backed by automatic memoization and rich outcome tracking.
 
@@ -15,23 +15,60 @@ chaint = "0.1.0"
 
 ```rust
 use chaint::formation::{Formation, Former};
+use chaint::Peeker;
 
-// Match the literal "hello"
+let source = Peeker::new(vec!["hello", "world"]);
+let mut former = Former::new(&mut source);
+
 let pattern = Formation::literal("hello");
+let result = former.form(pattern);
+assert!(result.is_input());
+```
 
-// Match a sequence of two literals
-let greeting = Formation::sequence([
-    Formation::literal("hello"),
-    Formation::literal("world"),
+```rust
+use chaint::formation::{Formation, Former};
+use chaint::Peeker;
+
+let source = Peeker::new(vec!['h', 'e', 'l', 'l', 'o']);
+let mut former = Former::new(&mut source);
+
+let pattern = Formation::sequence([
+    Formation::literal('h'),
+    Formation::literal('e'),
+    Formation::predicate(|c: &char| c.is_ascii_lowercase()),
+    Formation::predicate(|c: &char| c.is_ascii_lowercase()),
+    Formation::predicate(|c: &char| c.is_ascii_lowercase()),
 ]);
 
-// Match one or more digits with a predicate
-let digits = Formation::predicate(|c: &char| c.is_ascii_digit())
-    .into_persistence(1, None);
+let result = former.form(pattern);
+assert!(result.is_multiple());
+```
 
-let mut source = /* your Peekable source */;
+```rust
+use chaint::formation::{Formation, Former};
+use chaint::Peeker;
+
+let source = Peeker::new(vec![1, 2, 3, 4, 5]);
 let mut former = Former::new(&mut source);
-let result = former.form(greeting);
+
+let digit = Formation::predicate(|n: &i32| *n > 0);
+let multiple = digit.into_persistence(1, None);
+
+let result = former.form(multiple);
+assert_eq!(result.collect_inputs(), vec![1, 2, 3, 4, 5]);
+```
+
+## Peeker
+
+Wrap any `Vec<Item>` into a `Peekable` source:
+
+```rust
+use chaint::Peeker;
+
+let mut source = Peeker::new(vec!["a", "b", "c"]);
+assert_eq!(source.peek(), Some(&"a"));
+source.advance();
+assert_eq!(source.peek(), Some(&"b"));
 ```
 
 ## Combinators
@@ -61,14 +98,14 @@ Each parse attempt yields an outcome that propagates through combinators:
 Attach actions that run after a successful match:
 
 ```rust
+use chaint::formation::Formation;
+use chaint::Peeker;
+
+let mut source = Peeker::new(vec!["hello"]);
 let pattern = Formation::literal("hello")
-    .with_transform(|joint| {
-        // Transform matched output
-        Ok(())
-    })
     .with_fail(|joint| "expected greeting")
     .with_recover(
-        |input| input == &'\n',
+        |input| input == &"\n",
         |joint| "recovered at newline",
     );
 ```
@@ -79,19 +116,7 @@ Wrap any combinator with `Memoize` to cache results at each position:
 
 ```rust
 use chaint::Memoize;
+use chaint::formation::Formation;
 
-let pattern = Memoize::new(my_expensive_combinator);
-```
-
-## Peekable Trait
-
-Implement `Peekable` for your input source to enable incremental parsing with lookahead:
-
-```rust
-trait Peekable<'a, Item> {
-    fn peek_ahead(&self, n: Offset) -> Option<&Item>;
-    fn advance(&mut self) -> Option<Item>;
-    fn length(&self) -> Scale;
-    // ...
-}
+let pattern = Memoize::new(Formation::literal("expensive"));
 ```

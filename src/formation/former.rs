@@ -1,5 +1,3 @@
-// src/formation/former.rs
-
 use crate::{Build, Combinator, Commit, Form, Formable, Formation, Offset, Peekable};
 use std::collections::HashMap;
 use std::mem::replace;
